@@ -81,7 +81,6 @@
             <artifactId>mysql-connector-java</artifactId>
             <version>${mysql.version}</version>
         </dependency>
-
         <dependency>
             <groupId>com.yahoo.platform.yui</groupId>
             <artifactId>yuicompressor</artifactId>
@@ -91,7 +90,7 @@
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
-            <version>3.9</version>
+            <version>3.6</version>
         </dependency>
 
         <dependency>
@@ -117,7 +116,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <db.name>test_mis_yz_20160110</db.name>
+                <db.name>test_mis_yz_20160215</db.name>
                 <connection.driver_class>com.mysql.jdbc.Driver</connection.driver_class>
                 <connection.admin.url>
                     <![CDATA[ jdbc:mysql://192.168.1.239:3306?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=utf-8&amp;zeroDateTimeBehavior=convertToNull ]]>

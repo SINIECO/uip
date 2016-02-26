@@ -29,7 +29,7 @@
   </div>
   <!-- /.navbar-header -->
 
-  <ul class="nav navbar-top-links navbar-right">
+  <ul class="nav navbar-top-links navbar-right" style="z-index:9999;position: relative;">
     <!-- /.dropdown -->
     <li class="dropdown">
       <a class="dropdown-toggle" data-toggle="dropdown" href="#">
@@ -68,7 +68,13 @@
           <a href="../account/tables.html"><i class="fa fa-bar-chart-o fa-fw"></i> 接口配置<span class="fa arrow"></span></a>
           <ul class="nav nav-second-level">
             <li>
-              <a class="${currentHeader == 'interface-config' ? 'active' : ''}" href="${ctx}/content/mepoint/mepoint-list.do">测点管理</a>
+              <a class="${currentHeader == 'interface-config' ? 'active' : ''}" href="${ctx}/testPoint/toTestPoint.do">测点测试</a>
+            </li>
+            <li>
+              <a class="${currentHeader == 'interface-config' ? 'active' : ''}" href="${ctx}/testPoint/FirstMepoint-list.do">测点管理</a>
+            </li>
+            <li>
+              <a class="${currentHeader == 'interface-config' ? 'active' : ''}" href="${ctx}/testPoint/toOpcServerInfomation.do">opc服务信息</a>
             </li>
           </ul>
         </li>

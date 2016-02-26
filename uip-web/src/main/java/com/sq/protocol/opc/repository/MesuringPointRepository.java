@@ -4,6 +4,8 @@ import com.sq.protocol.opc.domain.MesuringPoint;
 import com.sq.repository.BaseRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
+
 /**
  * 测点仓库.
  * User: shuiqing
@@ -19,4 +21,21 @@ public interface MesuringPointRepository extends BaseRepository<MesuringPoint, L
     /** 根据编码查询测点 */
     @Query("select m from MesuringPoint m where sourceCode = ?1")
     MesuringPoint fetchMpByCode(String postCode);
+
+
+    /**
+     * 根据条件查询数据总数
+     * @param sourceName
+     * @return
+     */
+    public Integer countMesuringPoint(String sourceName);
+
+    /**
+     * 分页查询 MesuringPoint
+     * @param pageNo
+     * @param sourceName
+     * @return
+     */
+    public List<MesuringPoint> MesuringPointPage(final Integer pageNo, String sourceName);
+
 }

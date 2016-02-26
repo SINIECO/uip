@@ -14,6 +14,7 @@ import org.openscada.opc.lib.list.Category;
 import org.openscada.opc.lib.list.ServerList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import java.net.UnknownHostException;
@@ -32,6 +33,7 @@ import java.util.concurrent.Executors;
  * |_)._ _
  * | o| (_
  */
+@Service("utgardOpcHelper")
 public class UtgardOpcHelper {
 
     private static final Logger log = LoggerFactory.getLogger(UtgardOpcHelper.class);
