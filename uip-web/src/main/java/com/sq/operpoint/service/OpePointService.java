@@ -14,6 +14,8 @@ import org.jinterop.dcom.common.JIException;
 import org.jinterop.dcom.core.JIVariant;
 import org.openscada.opc.lib.common.NotConnectedException;
 import org.openscada.opc.lib.da.*;
+import org.openscada.opc.lib.da.browser.Branch;
+import org.openscada.opc.lib.da.browser.Leaf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,7 +64,8 @@ public class OpePointService extends BaseService<MesuringPoint,Long> {
     public void setEntityManagerFactory(EntityManagerFactory emf) {
         this.emf = emf;
     }
-
+    //用于接收测点
+    public static StringBuffer strBuffer = new StringBuffer("");
     /**
      * 测试测点是否连通服务
      * @param server
@@ -327,5 +330,33 @@ public class OpePointService extends BaseService<MesuringPoint,Long> {
             }
         }
         return list;
+    }
+
+    /**
+     * 打印所有的叶子节点
+     * @param branch
+     * @param level
+     */
+    public static void dumpTree(final Branch branch, final int level) {
+
+        for (final Leaf leaf : branch.getLeaves()) {
+            dumpLeaf(leaf, level);
+        }
+        for (final Branch subBranch : branch.getBranches()) {
+            dumpTree(subBranch, level + 1);
+        }
+    }
+    public static String dumpLeaf(final Leaf leaf, final int level) {
+        strBuffer.append(printTab(level) + "Leaf: " + leaf.getName() + ":"
+                + leaf.getItemId()).append("\n");
+        return strBuffer.toString();
+    }
+
+    public static String printTab(int level) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < level; i++) {
+            sb.append("\t");
+        }
+        return sb.toString();
     }
 }

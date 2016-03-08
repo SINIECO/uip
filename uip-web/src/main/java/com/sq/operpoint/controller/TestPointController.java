@@ -13,8 +13,13 @@ import com.sq.protocol.opc.domain.MesuringPoint;
 import com.sq.protocol.opc.domain.OpcServerInfomation;
 import com.sq.protocol.opc.repository.MesuringPointRepository;
 import com.sq.protocol.opc.service.MesuringPointService;
+import org.jinterop.dcom.common.JIException;
 import org.openscada.opc.dcom.list.ClassDetails;
+import org.openscada.opc.lib.common.ConnectionInformation;
 import org.openscada.opc.lib.da.Server;
+import org.openscada.opc.lib.list.Categories;
+import org.openscada.opc.lib.list.Category;
+import org.openscada.opc.lib.list.ServerList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +32,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.net.UnknownHostException;
 import java.util.*;
 
 /**
@@ -259,10 +265,22 @@ public class TestPointController {
     @RequestMapping("/testPoint/getSysIdAndReveiveOpc.do")
     public String getSysIdAndReveiveOpc(HttpServletRequest request){
         String sysId = request.getParameter("submitopc");
+        String [] opcInfo = sysId.split(",");
         Collection<ClassDetails> classDetails = null;
         try {
-            classDetails = utgardOpcHelper.fetchClassDetails(Integer.parseInt(sysId));
-        } catch (Exception e) {
+            ConnectionInformation connectionInformation = new ConnectionInformation();
+            connectionInformation.setHost(opcInfo[0]);
+            connectionInformation.setUser(opcInfo[1]);
+            connectionInformation.setPassword(opcInfo[2]);
+            connectionInformation.setDomain("");
+            ServerList serverList = new ServerList(connectionInformation.getHost(),
+                    connectionInformation.getUser(), connectionInformation.getPassword(),
+                    connectionInformation.getDomain());
+            classDetails = serverList
+                    .listServersWithDetails(new Category[]{
+                            Categories.OPCDAServer10, Categories.OPCDAServer20,
+                            Categories.OPCDAServer30}, new Category[]{});
+      } catch (Exception e) {
             log.error("没有发现opc服务信息");
             request.setAttribute("opcException",Constant.ZERO);
         }
@@ -347,4 +365,59 @@ public class TestPointController {
         }
         return "redirect:/testPoint/FirstMepoint-list.do";
     }
+
+    /**
+     * 导出opc的所有leaf节点
+     * @param request
+     * @param response
+     */
+    @RequestMapping("/testPoint/exportOpcPoint.do")
+    public void exportOpcPoint(HttpServletRequest request,HttpServletResponse response) throws JIException {
+        //传入系统编号获取服务连接
+        OpcServerInfomation opcServerInfomation = OpcRegisterFactory.fetchOpcInfo(Constant.ONE);
+        Server server = opcServerInfomation.getServer();
+        server = UtgardOpcHelper.connect(Constant.ONE);
+        /** 获得OPC连接下所有的Group和Item */
+        try {
+            opePointService.dumpTree(server.getTreeBrowser().browse(), Constant.ZERO);
+        } catch (UnknownHostException e) {
+            log.error("未获得主机Host");
+        }
+        String s = OpePointService.strBuffer.toString();
+        String filePath =  request.getSession().getServletContext().getRealPath("/downdata") + "\\";
+        File file=new File(filePath+File.separator+"opcpoint.doc");
+        OutputStream outStream=null;
+        try {
+            outStream=new FileOutputStream(file);
+            //4.将字符串转成byte[]
+            byte[] datas=s.getBytes();
+            //5.将byte[]数组传入流的write()方法
+            outStream.write(datas);
+            outStream.flush();//清空缓存的内容
+            outStream.close();
+        } catch (IOException e) {
+            log.error("生成文件失败");
+        }
+        //添加响应头,浏览器显示下载窗口
+        response.addHeader("content-disposition", "attachment;filename=" + "opcpoint.doc");
+        File sourceFile = new File(filePath,"opcpoint.doc");
+        try {
+            InputStream inStream = new FileInputStream(sourceFile);
+            //获得响应的字节流
+            ServletOutputStream outStreamm = response.getOutputStream();
+            byte[] buffer = new byte[Constant.BYTES_READRATE];//缓冲数组
+            int length = Constant.NEGATIVE_ONE;
+            //通过循环将输入流中所有数据写入输出流
+            while ((length = inStream.read(buffer, Constant.ZERO, buffer.length)) != Constant.NEGATIVE_ONE) {
+                outStreamm.write(buffer, Constant.ZERO, length);
+            }
+            inStream.close();
+            outStreamm.close();
+        } catch (IOException e) {
+            log.error("下载失败!");
+        }
+
+    }
 }
+
+

@@ -342,7 +342,7 @@
             	$.ajax(
             		{   //以post方式发出ajax请求
             			url:"${ctx}/testPoint/AnyMepoint-list.do",
-            			  type:"post",
+            			type:"post",
             			data:param, //请求传递的参数
             			dataType:"json",//设置返回的json数据类型
             			success:showdata
@@ -444,7 +444,7 @@
             //尾页
             var li5=$("<li>");
             var a5=$("<a>").attr("href","javascript:changeQuery("+datas.lastPage+")").attr("id","lastye").text("尾页");
-            var input15=$("<input>").attr("type","hidden ").attr("id","lastyeValue").attr("value",datas.lastPage);
+            var input15=$("<input>").attr("type","hidden").attr("id","lastyeValue").attr("value",datas.lastPage);
             var aa5=$("</a>");
             var lli5=$("</li>");
             li5.append(a5).append(input15).append(aa5).append(lli5);

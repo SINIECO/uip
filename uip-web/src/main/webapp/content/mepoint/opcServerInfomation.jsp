@@ -44,9 +44,10 @@
                                      <tr>
                                          <td align="right"><font style="font-weight: bold" size=4.5>条件:</font></td>
                                          <td align="center"><input class="form-control" style="width:300px"type="text" name="submitopc" class="input-small search-query"
-                                                                         				placeholder="请输入sysId："value="${requestScope.opcId}" >
+                                                                         				placeholder="请依次输入host,user,password：逗号隔开"value="${requestScope.opcId}" >
                                          <td align="left"><input type="submit"  class="btn btn-warning" id="submitopc" value="查询"/>
                                          </td>
+                                         <td align="right"><a href="${ctx}/testPoint/exportOpcPoint.do"  class="btn btn-danger">导出测点</a></td>
                                      </tr>
                                  </table>
                                  <div class="form-group" align="left">
@@ -89,4 +90,5 @@
                  </div>
      </div>
    </body>
+
 </html>
