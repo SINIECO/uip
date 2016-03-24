@@ -116,7 +116,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <db.name>test_mis_yz_20160215</db.name>
+                <db.name>dev_gov_jr_20160112</db.name>
                 <connection.driver_class>com.mysql.jdbc.Driver</connection.driver_class>
                 <connection.admin.url>
                     <![CDATA[ jdbc:mysql://192.168.20.201:3306?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=utf-8&amp;zeroDateTimeBehavior=convertToNull ]]>
@@ -126,6 +126,7 @@
                 </connection.url>
                 <connection.username>root</connection.username>
                 <connection.password>87783121</connection.password>
+                <!--87783121-->
                 <jpa.showSql>true</jpa.showSql>
                 <jpa.generateDdl>true</jpa.generateDdl>
                 <jpa.database> </jpa.database>
