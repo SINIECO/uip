@@ -33,7 +33,6 @@ import java.util.concurrent.Executors;
  * |_)._ _
  * | o| (_
  */
-@Service("utgardOpcHelper")
 public class UtgardOpcHelper {
 
     private static final Logger log = LoggerFactory.getLogger(UtgardOpcHelper.class);

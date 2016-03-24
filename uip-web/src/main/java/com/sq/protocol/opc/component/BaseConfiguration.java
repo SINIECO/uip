@@ -8,9 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Opc基础配置，主要是连接的一些配置属性.
@@ -38,6 +36,8 @@ public class BaseConfiguration {
     public static String CONFIG_CLSID = "clsid";
     public static String CONFIG_PROGID = "progid";
     public static String CONFIG_SYSID = "sysid";
+
+    public static List<ConnectionInformation> opcServerInfomationList = new ArrayList<ConnectionInformation>();
 
     /** 客户端配置的初始序列 */
     public static int CONFIG_CLIENT_ID = 1;
@@ -112,6 +112,7 @@ public class BaseConfiguration {
         opcServerInfomation.setC_id(client_id);
         opcServerInfomation.setSysId(getEntryValue(CONFIG_SYSID + slink));
         opcServerInfomation.setConnectionInformation(connectionInformation);
+        opcServerInfomationList.add(connectionInformation);
         OpcRegisterFactory.registerServerInfo(client_id, opcServerInfomation);
     }
 

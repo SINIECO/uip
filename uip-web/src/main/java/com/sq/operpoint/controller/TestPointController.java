@@ -1,8 +1,7 @@
 package com.sq.operpoint.controller;
-
-
 import com.alibaba.fastjson.JSON;
 import com.sq.operpoint.domain.Constant;
+import com.sq.operpoint.domain.LeafData;
 import com.sq.operpoint.domain.PagaData;
 import com.sq.operpoint.domain.PointResults;
 import com.sq.operpoint.service.OpePointService;
@@ -26,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.ServletOutputStream;
@@ -37,7 +37,17 @@ import java.util.*;
 
 /**
  * Created by ywj on 2016/1/12.
- * 测点控制模块
+ * 测点控制模块控制器
+ *  *_{___{__}\
+ {_}      `\)
+ {_}        `            _.-''''--.._
+ {_}                    //'.--.  \___`.
+ { }__,_.--~~~-~~~-~~-::.---. `-.\  `.)
+ `-.{_{_{_{_{_{_{_{_//  -- 0;=- `
+ `-:,_.:,_:,_:,.`\\._ ..'0- ,
+ // // // //`-.`\`   .-'/
+ << << << <<    \ `--'  /----)
+ ^  ^  ^  ^     `-.....--'''
  */
 @Controller
 public class TestPointController {
@@ -52,9 +62,6 @@ public class TestPointController {
 
     @Autowired
     private MesuringPointService mesuringPointService;
-
-    @Autowired
-    private UtgardOpcHelper utgardOpcHelper;
 
     /**
      * 转向到测点测试页面
@@ -143,7 +150,8 @@ public class TestPointController {
         p.setLastPage(countPage);
         p.setSourceNameCode(sourceName);
         PrintWriter out = response.getWriter();
-        response.reset();//解决出现Ill异常
+        //解决出现Ill异常
+        response.reset();
         String js = JSON.toJSONString(p);
         out.print(js.toString());
         out.flush();
@@ -338,6 +346,7 @@ public class TestPointController {
      * @param upfile
      * @return
      */
+    @ResponseBody
     @RequestMapping("/testPoint/upFileAndAnalysis.do")
     public String upFileAndAnalysis(HttpServletRequest request,MultipartFile upfile){
         if (!upfile.isEmpty()) {
@@ -350,17 +359,19 @@ public class TestPointController {
                 // 转存文件
                 upfile.transferTo(file);
                 log.error("文件上传成功");
-            } catch (Exception e) {
-               log.error("文件上传失败");
-            }
-            //取得excel表格里的数据组成集合
-            List<MesuringPoint> list = opePointService.addDataForPoint(filePath + newFileName);
-            //逐个遍历监测是否可用从而存入数据库中
-            for(MesuringPoint p : list){
-                String info = opePointService.checkPointSeverReturnInfomation(p.getSourceCode(),p.getSysId());
-                if(!info.equals("fail")){
-                    mesuringPointRepository.save(p);
+                //取得excel表格里的数据组成集合
+                List<MesuringPoint> list = opePointService.addDataForPoint(filePath + newFileName);
+                //逐个遍历监测是否可用从而存入数据库中
+                for(MesuringPoint p : list){
+                    String info = opePointService.checkPointSeverReturnInfomation(p.getSourceCode(),p.getSysId());
+                    if(!info.equals("fail")){
+                        mesuringPointRepository.save(p);
+                    }
                 }
+                return "文件上传成功，真牛比！<a href="+"/uip-web/testPoint/FirstMepoint-list.do"+">返回</a>";
+            } catch (Exception e) {
+                log.error("文件上传失败");
+                return "文件上传失败！<a href="+"/uip-web/testPoint/FirstMepoint-list.do"+">返回</a>";
             }
         }
         return "redirect:/testPoint/FirstMepoint-list.do";
@@ -377,46 +388,41 @@ public class TestPointController {
         OpcServerInfomation opcServerInfomation = OpcRegisterFactory.fetchOpcInfo(Constant.ONE);
         Server server = opcServerInfomation.getServer();
         server = UtgardOpcHelper.connect(Constant.ONE);
-        /** 获得OPC连接下所有的Group和Item */
+        List<LeafData> leafDataList = null;
+        //获得OPC连接下所有的Group和Item
         try {
-            opePointService.dumpTree(server.getTreeBrowser().browse(), Constant.ZERO);
+            leafDataList = opePointService.dumpFlat(server.getFlatBrowser());
         } catch (UnknownHostException e) {
             log.error("未获得主机Host");
         }
-        String s = OpePointService.strBuffer.toString();
-        String filePath =  request.getSession().getServletContext().getRealPath("/downdata") + "\\";
-        File file=new File(filePath+File.separator+"opcpoint.doc");
-        OutputStream outStream=null;
-        try {
-            outStream=new FileOutputStream(file);
-            //4.将字符串转成byte[]
-            byte[] datas=s.getBytes();
-            //5.将byte[]数组传入流的write()方法
-            outStream.write(datas);
-            outStream.flush();//清空缓存的内容
-            outStream.close();
-        } catch (IOException e) {
-            log.error("生成文件失败");
-        }
+        Map<String, String> excelMap = new HashMap<String, String>();
+        excelMap.put("0brance", "brance");
+        excelMap.put("1leaf", "leaf");//属性前边的数字代表字段的先后顺序。
+        Map data = new HashMap();
+        data.put("listData", leafDataList);
+        data.put("excelMap", excelMap);
+        String filePath =  request.getSession().getServletContext().getRealPath("/data") + "\\";
+        String path = filePath + "leaf.xls";
+        opePointService.LeafListToExcel("节点数据",data,path);
         //添加响应头,浏览器显示下载窗口
-        response.addHeader("content-disposition", "attachment;filename=" + "opcpoint.doc");
-        File sourceFile = new File(filePath,"opcpoint.doc");
+        response.addHeader("content-disposition", "attachment;filename=" + "leaf.xls");
+        //源文件
+        File sourceFile = new File(filePath,"leaf.xls");
         try {
             InputStream inStream = new FileInputStream(sourceFile);
             //获得响应的字节流
-            ServletOutputStream outStreamm = response.getOutputStream();
+            ServletOutputStream outStream = response.getOutputStream();
             byte[] buffer = new byte[Constant.BYTES_READRATE];//缓冲数组
             int length = Constant.NEGATIVE_ONE;
             //通过循环将输入流中所有数据写入输出流
             while ((length = inStream.read(buffer, Constant.ZERO, buffer.length)) != Constant.NEGATIVE_ONE) {
-                outStreamm.write(buffer, Constant.ZERO, length);
+                outStream.write(buffer, Constant.ZERO, length);
             }
             inStream.close();
-            outStreamm.close();
+            outStream.close();
         } catch (IOException e) {
             log.error("下载失败!");
         }
-
     }
 }
 

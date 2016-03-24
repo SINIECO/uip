@@ -270,12 +270,20 @@
        		    $("#but01").click(result);
        			$("#sell01").click(selectData);
                 $("#eeee").hide();
+                vartyupfile();
        		}
        		);
        		function selectData(){
        		    toFirstPage();
        		}
-
+            function vartyupfile(){
+                if($("#vartyupfile").value == 1){
+                alert("success")
+            }
+            if($("#vartyupfile").value == 0){
+                alert("fail")
+            }
+            }
        		function result()
        		{
        		    var param=$("#f1").serialize();//序列化表单,将表单中的参数组装成参数格式
@@ -306,7 +314,6 @@
    		    $("#lastye").click(toLastPage);
    	     }
    		 );
-
         function tes(){
             toPage();
         }

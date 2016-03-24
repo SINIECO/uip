@@ -6,14 +6,26 @@ package com.sq.operpoint.domain;
  */
 public class PointResults{
 
+    private Long id;
+
+    private String sourceCode;
+
+    private String targetCode;
+
+    private String pointName;
+
+    private int sysId;
+
+    private String status;
+
+    private String values;
+
     public Long getId() {
         return id;
     }
     public void setId(Long id) {
         this.id = id;
     }
-    private Long id;
-
     public String getStatus() {
         return status;
     }
@@ -29,9 +41,6 @@ public class PointResults{
     public void setValues(String values) {
         this.values = values;
     }
-
-    private String status;
-    private String values;
 
     public String getSourceCode() {
         return sourceCode;
@@ -64,10 +73,5 @@ public class PointResults{
     public void setSysId(int sysId) {
         this.sysId = sysId;
     }
-
-    private String sourceCode;
-    private String targetCode;
-    private String pointName;
-    private int sysId;
 
 }
