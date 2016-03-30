@@ -1,9 +1,9 @@
 package junit.validatePoint;
 
 import com.alibaba.fastjson.JSON;
-import com.sq.validatePoint.controller.ValidatePointController;
-import com.sq.validatePoint.domain.MesuringPointData;
-import com.sq.validatePoint.service.ValidatePointService;
+import com.sq.protocol.opc.controller.ValidatePointController;
+import com.sq.protocol.opc.domain.MesuringPointData;
+import com.sq.protocol.opc.service.ValidatePointService;
 import junit.base.TestCase;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
