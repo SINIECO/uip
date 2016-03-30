@@ -25,24 +25,7 @@
   <%@include file="/content/include/jslib.jsp" %>
   <%@include file="/content/include/csslib.jsp" %>
 
-  <script type="text/javascript">
-    var config = {
-      id: 'opcconnect-infoGrid',
-      pageNo: ${page.pageNo},
-      pageSize: ${page.pageSize},
-      totalCount: ${page.totalCount},
-      resultSize: ${page.resultSize},
-      pageCount: ${page.pageCount},
-      orderBy: '${page.orderBy == null ? "" : page.orderBy}',
-      asc: ${page.asc},
-      params: {
-        'filter_LIKES_name': '${param.filter_LIKES_name}'
-      },
-      selectedItemClass: 'selectedItem',
-      gridFormId: 'opcconnect-infoGridForm',
-      exportUrl: 'opcconnect-info-export.do'
-    };
-  </script>
+
 </head>
 
 <body>
@@ -65,27 +48,24 @@
                 <div class="dataTables_wrapper">
                   <table class="table table-striped table-bordered table-hover" id="opcconnect-infoGrid">
                     <thead>
-                    <tr>
+                    <tr class="success">
                       <th>序号</th>
                       <th>连接名称</th>
                       <th>目标IP</th>
                       <th>用户名</th>
                       <th>登录密码</th>
                       <th>CLSID</th>
-                      <th>创建时间</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <c:forEach items="${page.result}" var="item">
+                    <c:forEach items="${requestScope.opcServerInfomationList}" var="item"  varStatus="status">
                       <tr>
-                        <td><input type="checkbox" class="selectedItem a-check" name="selectedItem" value="${item.id}"></td>
-                        <td>${item.id}</td>
-                        <td>${item.connectName}</td>
+                        <td>${status.count}</td>
+                        <td>${item.domain}</td>
                         <td>${item.host}</td>
-                        <td>${item.userName}</td>
+                        <td>${item.user}</td>
                         <td>${item.password}</td>
                         <td>${item.clsid}</td>
-                        <td>${item.createTime}</td>
                       </tr>
                     </c:forEach>
                     </tbody>

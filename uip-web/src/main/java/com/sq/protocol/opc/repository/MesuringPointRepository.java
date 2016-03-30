@@ -28,7 +28,7 @@ public interface MesuringPointRepository extends BaseRepository<MesuringPoint, L
      * @param sourceName
      * @return
      */
-    public Integer countMesuringPoint(String sourceName);
+    Integer countMesuringPoint(String sourceName);
 
     /**
      * 分页查询 MesuringPoint
@@ -36,6 +36,19 @@ public interface MesuringPointRepository extends BaseRepository<MesuringPoint, L
      * @param sourceName
      * @return
      */
-    public List<MesuringPoint> MesuringPointPage(final Integer pageNo, String sourceName);
+    List<MesuringPoint> MesuringPointPage(final Integer pageNo, String sourceName);
 
+    /**
+     * 获取数据库中存在的sysId
+     * @return
+     */
+    @Query("select distinct m.sysId from MesuringPoint m")
+    List<Integer> getAllDBMesuringPointSysId();
+
+   /**
+    * 根据sysId获取数据库中对应的测点集合
+    * @return
+    */
+    @Query("select m from MesuringPoint m where m.sysId=?1")
+    List<MesuringPoint> getMesuringPointBySysId(Integer sysId);
 }

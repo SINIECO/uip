@@ -4,10 +4,7 @@ package com.sq.operpoint.repository;
 import com.sq.operpoint.domain.Constant;
 import com.sq.protocol.opc.domain.MesuringPoint;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceUnit;
-import javax.persistence.Query;
+import javax.persistence.*;
 import java.util.List;
 
 /**

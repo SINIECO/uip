@@ -2,6 +2,7 @@ package com.sq.operpoint.service;
 
 import com.sq.inject.annotation.BaseComponent;
 import com.sq.operpoint.domain.Constant;
+import com.sq.operpoint.domain.LeafData;
 import com.sq.protocol.opc.component.OpcRegisterFactory;
 import com.sq.protocol.opc.component.UtgardOpcHelper;
 import com.sq.protocol.opc.domain.MeaType;
@@ -15,6 +16,7 @@ import org.jinterop.dcom.core.JIVariant;
 import org.openscada.opc.lib.common.NotConnectedException;
 import org.openscada.opc.lib.da.*;
 import org.openscada.opc.lib.da.browser.Branch;
+import org.openscada.opc.lib.da.browser.FlatBrowser;
 import org.openscada.opc.lib.da.browser.Leaf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +34,7 @@ import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -66,6 +69,11 @@ public class OpePointService extends BaseService<MesuringPoint,Long> {
     }
     //用于接收测点
     public static StringBuffer strBuffer = new StringBuffer("");
+
+    private static Map<Integer, String> map = new HashMap<Integer, String>();
+    //用于存储生成的OpcServerInfomation
+    private static Map<Integer, Server> opcServerInfomationmap = new HashMap<Integer, Server>();
+
     /**
      * 测试测点是否连通服务
      * @param server
@@ -131,7 +139,7 @@ public class OpePointService extends BaseService<MesuringPoint,Long> {
         if((this.countMesuringPoint(sourceName) % Constant.eight) != Constant.ZERO){
             //不足一页的条数也占有一页
             countPage = ((this.countMesuringPoint(sourceName) / Constant.eight) + Constant.PAGE_LAST_ADD_ONE);
-        }else{
+        } else {
             countPage = ((this.countMesuringPoint(sourceName) / Constant.eight));
         }
         return countPage;
@@ -239,9 +247,9 @@ public class OpePointService extends BaseService<MesuringPoint,Long> {
                                 Object shuXing = m.invoke(obj, null);
                                 if (shuXing != null) {
                                     if(shuXing.equals(MeaType.LogicCalMea)){
-                                        cell.setCellValue(2);
+                                        cell.setCellValue(Constant.TWo);
                                     } else if (shuXing.equals(MeaType.OriginalMea)){
-                                        cell.setCellValue(1);
+                                        cell.setCellValue(Constant.ONE);
                                     } else {
                                         cell.setCellValue(shuXing.toString());//这里可以做数据格式处理
                                     }
@@ -334,29 +342,102 @@ public class OpePointService extends BaseService<MesuringPoint,Long> {
 
     /**
      * 打印所有的叶子节点
-     * @param branch
-     * @param level
+     * @param browser
      */
-    public static void dumpTree(final Branch branch, final int level) {
-
-        for (final Leaf leaf : branch.getLeaves()) {
-            dumpLeaf(leaf, level);
+    public static List<LeafData> dumpFlat(final FlatBrowser browser)
+            throws IllegalArgumentException, UnknownHostException, JIException {
+        List<LeafData> leafDataList = new ArrayList<LeafData>();
+        int count = Constant.ZERO;
+        for (String name : browser.browse()) {
+            LeafData leafData = new LeafData();
+            if (name.contains(".")) {
+                String[] s = name.split("\\.");
+                map.put(++count, s[Constant.ZERO]);
+                if (count >= Constant.TWo) {
+                    if (map.get(count).equals(map.get(count - Constant.ONE))) {
+                        leafData.setBrance("");
+                        leafData.setLeaf(s[Constant.ONE]);
+                    } else {
+                        leafData.setBrance(s[Constant.ZERO]);
+                        leafData.setLeaf(s[Constant.ONE]);
+                    }
+                } else {
+                    leafData.setBrance(name);
+                    leafData.setLeaf("");
+                }
+            }else {
+                leafData.setBrance(name);
+                leafData.setLeaf("");
+            }
+            leafDataList.add(leafData);
         }
-        for (final Branch subBranch : branch.getBranches()) {
-            dumpTree(subBranch, level + 1);
-        }
+        return leafDataList;
     }
-    public static String dumpLeaf(final Leaf leaf, final int level) {
-        strBuffer.append(printTab(level) + "Leaf: " + leaf.getName() + ":"
-                + leaf.getItemId()).append("\n");
-        return strBuffer.toString();
-    }
 
-    public static String printTab(int level) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < level; i++) {
-            sb.append("\t");
+
+
+    /**
+     * 生成excel表格方法
+     * @param name
+     * @param data
+     * @return
+     */
+    public static String[] LeafListToExcel(String name,Map data,String path) {
+        Map<String, String> ziDuan = (Map<String, String>) data.get("excelMap");
+        List listData = (List) data.get("listData");
+        Object[] keys = ziDuan.keySet().toArray();
+        String[] ziDuanKeys = new String[keys.length];
+        for (int k = Constant.ZERO; k < keys.length; k++) {
+            String temp = keys[k].toString();
+            Integer xuHao = Integer.parseInt(temp.substring(Constant.ZERO, Constant.ONE));
+            ziDuanKeys[xuHao] = temp.substring(Constant.ONE);
         }
-        return sb.toString();
+        try {
+            HSSFWorkbook wb = new HSSFWorkbook();
+            HSSFSheet sheet = wb.createSheet();
+            for (int i = Constant.ZERO; i < listData.size(); i++) {
+                HSSFRow row = sheet.createRow(i);
+                Object obj = listData.get(i);
+                for (int j = Constant.ZERO; j < ziDuanKeys.length; j++) {
+                    HSSFCell cell = row.createCell(j);
+                    if (i == Constant.ZERO) {
+                        sheet.setColumnWidth(j, Constant.UpdateRate);
+                        cell.setCellValue(new HSSFRichTextString(ziDuan.get(j
+                                + ziDuanKeys[j])));
+                    } else {
+                        String ziDuanName = (String) ziDuanKeys[j];
+                        ziDuanName = ziDuanName.replaceFirst(ziDuanName
+                                .substring(Constant.ZERO, Constant.ONE), ziDuanName.substring(Constant.ZERO, Constant.ONE)
+                                .toUpperCase());
+                        ziDuanName = "get" + ziDuanName;
+                        Class clazz = Class.forName(obj.getClass().getName());
+                        Method[] methods = clazz.getMethods();
+                        Pattern pattern = Pattern.compile(ziDuanName);
+                        Matcher mat = null;
+                        for (Method m : methods) {
+                            mat = pattern.matcher(m.getName());
+                            if (mat.find()) {
+                                Object shuXing = m.invoke(obj, null);
+                                if (shuXing != null) {
+                                    cell.setCellValue(shuXing.toString());//这里可以做数据格式处理
+                                } else {
+                                    cell.setCellValue("");
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            OutputStream out = new FileOutputStream(path);
+            wb.write(out);
+            out.flush();
+            out.close();
+            log.error("创建文件成功：" + path);
+            return null;
+        } catch (Exception e) {
+            log.error("创建文件失败!" + path);
+            return null;
+        }
     }
 }

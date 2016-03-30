@@ -85,7 +85,7 @@
               <a class="${currentHeader == 'interface-config' ? 'active' : ''}" href="${ctx}/content/protocal/opc/opc-client-add.jsp">OPC通信新增</a>
             </li>
             <li>
-              <a class="${currentHeader == 'interface-config' ? 'active' : ''}" href="${ctx} /opc/listOpcConnection.do">OPC通信列表</a>
+              <a class="${currentHeader == 'interface-config' ? 'active' : ''}" href="${ctx}/commmuication/listOpcConnection.do">OPC通信列表</a>
             </li>
           </ul>
         </li>

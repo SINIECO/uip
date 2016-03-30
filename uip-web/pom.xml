@@ -129,7 +129,7 @@
                 <!--87783121-->
                 <jpa.showSql>true</jpa.showSql>
                 <jpa.generateDdl>true</jpa.generateDdl>
-                <jpa.database>MYSQL</jpa.database>
+                <jpa.database> </jpa.database>
                 <jpa.databasePlatform>org.hibernate.dialect.MySQL5InnoDBDialect</jpa.databasePlatform>
             </properties>
         </profile>
